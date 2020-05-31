@@ -65,9 +65,15 @@ func (p *Player) InitPos() {
 
 // Move sets up the next player's position on the map.
 func (p *Player) Move() {
-
 	if !p.IsBot {
-
+		// The human player initial sector.
+		fmt.Println("Choose sector to move:")
+		choice, err := readUserInput(MapMax)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Printf("You have picked sector %d\n", choice)
+		initHumPos, p.Location = choice, toCoords(choice)
 	} else {
 
 	}

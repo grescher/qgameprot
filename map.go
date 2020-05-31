@@ -31,7 +31,7 @@ func (m *Map) Init() {
 	}
 }
 
-// ShowMap shows up the current map condition.
+// ShowMap shows up the current map condition with the players on it if any.
 func (m *Map) ShowMap() {
 	for i := range m {
 		for j := range m[i] {

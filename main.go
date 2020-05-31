@@ -14,7 +14,10 @@ func main() {
 	bot.SetBot()
 	// Initialize the game map.
 	MapSectors.Init()
+	MapSectors.ShowMap()
 	player.InitPos()
 	bot.InitPos()
+	MapSectors.ShowMap()
+	// Players make their moves until meet each other
 
 }
