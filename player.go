@@ -9,7 +9,10 @@ import (
 /* Types */
 
 // Coords type contains coorginates on the game map.
-type Coords [2]int
+type Coords struct {
+	Row int
+	Col int
+}
 
 // Player type.
 type Player struct {
@@ -37,17 +40,15 @@ func (p *Player) SetHuman() {
 
 // InitPos sets up the initial player's sector.
 func (p *Player) InitPos() {
-	MapSectors.ShowMap()
-	fmt.Println("Choose sector to start:")
-
 	var choice int
 	if !p.IsBot {
 		// The human player initial sector.
+		fmt.Println("Choose sector to start:")
 		choice, err := readUserInput(MapMax)
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Printf("You chose sector %d\n", choice)
+		fmt.Printf("You have picked sector %d\n", choice)
 		initHumPos, p.Location = choice, toCoords(choice)
 	} else {
 		// The bot player initial sector.
@@ -57,20 +58,29 @@ func (p *Player) InitPos() {
 			choice = rand.Intn(MapMax) + 1
 		}
 		p.Location = toCoords(choice)
-		fmt.Printf("The opponent's clan chose sector %d\n", choice)
+		fmt.Printf("The opponent's clan has picked sector %d\n", choice)
+	}
+	p.CaptureSector(&MapSectors)
+}
+
+// Move sets up the next player's position on the map.
+func (p *Player) Move() {
+
+	if !p.IsBot {
+
+	} else {
+
 	}
 }
 
-// SetNextPos sets up the next player's position on the map.
-// func (p *Player) SetNextPos() {
-// 	var choice int
-
-// 	if !p.IsBot {
-
-// 	} else {
-
-// 	}
-// }
+// CaptureSector sets the status of the map sector for the respective player.
+func (p *Player) CaptureSector(m *Map) {
+	if p.IsBot {
+		m[p.Location.Row][p.Location.Col].Status += SectBot
+	} else {
+		m[p.Location.Row][p.Location.Col].Status += SectHum
+	}
+}
 
 func readUserInput(lim int) (input int, err error) {
 	// Scan int from stdin.
@@ -90,8 +100,8 @@ func readUserInput(lim int) (input int, err error) {
 }
 
 // Converts map sector number into map coordinates.
-func toCoords(n int) (xy Coords) {
-	xy[0] = (n - 1) / MapWidth
-	xy[1] = (n - 1) % MapWidth
-	return xy
+func toCoords(n int) (c Coords) {
+	c.Row = (n - 1) / MapWidth
+	c.Col = (n - 1) % MapWidth
+	return c
 }
