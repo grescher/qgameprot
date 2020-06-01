@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"time"
 )
 
 /* Types */
@@ -32,6 +33,7 @@ var initHumPos int
 // SetBot marks the player as bot.
 func (p *Player) SetBot() {
 	p.IsBot = true
+	rand.Seed(time.Now().UnixNano())
 }
 
 // SetHuman marks the player as human.
@@ -66,6 +68,7 @@ func (p *Player) Move() {
 	if !p.IsBot {
 		// The human player initial sector.
 		fmt.Println("Input the sector number to move:")
+		// do...while loop analogue
 		for {
 			tmpLoc = toCoords(readUserInput(MapMax))
 			err := checkNextMove(p.Location, tmpLoc)
@@ -74,13 +77,19 @@ func (p *Player) Move() {
 				fmt.Print("Select the sector next to your current location: ")
 				continue
 			}
-			p.ClearSector(&MapSectors)
-			p.Location = tmpLoc
-			p.CaptureSector(&MapSectors)
+			reSetPlayerLocation(p, tmpLoc)
 			break
 		}
 	} else {
-
+		for {
+			tmpLoc = toCoords(rand.Intn(MapMax) + 1)
+			err := checkNextMove(p.Location, tmpLoc)
+			if err != nil {
+				continue
+			}
+			reSetPlayerLocation(p, tmpLoc)
+			break
+		}
 	}
 }
 
@@ -95,7 +104,11 @@ func (p *Player) CaptureSector(m *Map) {
 
 // ClearSector marks the map sector as no-one's.
 func (p *Player) ClearSector(m *Map) {
-	m[p.Location.Row][p.Location.Col].Status = SectEmp
+	if p.IsBot {
+		m[p.Location.Row][p.Location.Col].Status -= SectBot
+	} else {
+		m[p.Location.Row][p.Location.Col].Status -= SectHum
+	}
 }
 
 func readUserInput(lim int) (input int) {
@@ -115,6 +128,13 @@ func readUserInput(lim int) (input int) {
 	return input
 }
 
+// Sets a new user location; clears the previous sector.
+func reSetPlayerLocation(p *Player, newLoc Coords) {
+	p.ClearSector(&MapSectors)
+	p.Location = newLoc
+	p.CaptureSector(&MapSectors)
+}
+
 // Converts map sector number into map coordinates.
 func toCoords(n int) (c Coords) {
 	c.Row = (n - 1) / MapWidth
@@ -123,7 +143,7 @@ func toCoords(n int) (c Coords) {
 }
 
 // Checks if the player can make a move to a new sector.
-func checkNextMove(plrLoc Coords, newLoc Coords) (err error) {
+func checkNextMove(plrLoc, newLoc Coords) (err error) {
 	diff := newLoc.Col - plrLoc.Col
 	if diff > 1 || diff < -1 {
 		return errors.New("unable to move through a sector")
