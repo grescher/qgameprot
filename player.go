@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"math/rand"
@@ -70,7 +71,7 @@ func (p *Player) Move() {
 			err := checkNextMove(p.Location, tmpLoc)
 			if err != nil {
 				fmt.Println(err)
-				fmt.Println("Input correct sector number:")
+				fmt.Print("Select the sector next to your current location: ")
 				continue
 			}
 			p.ClearSector(&MapSectors)
@@ -78,7 +79,6 @@ func (p *Player) Move() {
 			p.CaptureSector(&MapSectors)
 			break
 		}
-
 	} else {
 
 	}
@@ -120,4 +120,17 @@ func toCoords(n int) (c Coords) {
 	c.Row = (n - 1) / MapWidth
 	c.Col = (n - 1) % MapWidth
 	return c
+}
+
+// Checks if the player can make a move to a new sector.
+func checkNextMove(plrLoc Coords, newLoc Coords) (err error) {
+	diff := newLoc.Col - plrLoc.Col
+	if diff > 1 || diff < -1 {
+		return errors.New("unable to move through a sector")
+	}
+	diff = newLoc.Row - plrLoc.Row
+	if diff > 1 || diff < -1 {
+		return errors.New("unable to move through a sector")
+	}
+	return nil
 }
