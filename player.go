@@ -44,11 +44,7 @@ func (p *Player) InitPos() {
 	if !p.IsBot {
 		// The human player initial sector.
 		fmt.Println("Choose sector to start:")
-		choice, err := readUserInput(MapMax)
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Printf("You have picked sector %d\n", choice)
+		choice := readUserInput(MapMax)
 		initHumPos, p.Location = choice, toCoords(choice)
 	} else {
 		// The bot player initial sector.
@@ -65,15 +61,24 @@ func (p *Player) InitPos() {
 
 // Move sets up the next player's position on the map.
 func (p *Player) Move() {
+	var tmpLoc Coords
 	if !p.IsBot {
 		// The human player initial sector.
-		fmt.Println("Choose sector to move:")
-		choice, err := readUserInput(MapMax)
-		if err != nil {
-			log.Fatal(err)
+		fmt.Println("Input the sector number to move:")
+		for {
+			tmpLoc = toCoords(readUserInput(MapMax))
+			err := checkNextMove(p.Location, tmpLoc)
+			if err != nil {
+				fmt.Println(err)
+				fmt.Println("Input correct sector number:")
+				continue
+			}
+			p.ClearSector(&MapSectors)
+			p.Location = tmpLoc
+			p.CaptureSector(&MapSectors)
+			break
 		}
-		fmt.Printf("You have picked sector %d\n", choice)
-		initHumPos, p.Location = choice, toCoords(choice)
+
 	} else {
 
 	}
@@ -88,21 +93,26 @@ func (p *Player) CaptureSector(m *Map) {
 	}
 }
 
-func readUserInput(lim int) (input int, err error) {
+// ClearSector marks the map sector as no-one's.
+func (p *Player) ClearSector(m *Map) {
+	m[p.Location.Row][p.Location.Col].Status = SectEmp
+}
+
+func readUserInput(lim int) (input int) {
 	// Scan int from stdin.
-	_, err = fmt.Scanf("%d", &input)
+	_, err := fmt.Scanf("%d", &input)
 	if err != nil {
-		return 0, err
+		log.Fatal(err)
 	}
 	// Check whether ch is in range of map, if it's not reprompt the user.
 	for input < 1 || input > lim {
 		fmt.Printf("incorrect value, try with <1-%d>: ", lim)
 		_, err = fmt.Scanf("%d", &input)
 		if err != nil {
-			return 0, err
+			log.Fatal(err)
 		}
 	}
-	return input, nil
+	return input
 }
 
 // Converts map sector number into map coordinates.

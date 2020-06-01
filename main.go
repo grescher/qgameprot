@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"math/rand"
 	"time"
 )
@@ -19,5 +20,10 @@ func main() {
 	bot.InitPos()
 	MapSectors.ShowMap()
 	// Players make their moves until meet each other
-
+	for player.Location != bot.Location {
+		player.Move()
+		bot.Move()
+		MapSectors.ShowMap()
+	}
+	fmt.Println("Bye.")
 }
