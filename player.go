@@ -18,6 +18,7 @@ type Coords struct {
 
 // Player type.
 type Player struct {
+	Name     string
 	Location Coords // Tracks in which sector the player currently is.
 	IsBot    bool   // True if a player is bot.
 }
@@ -32,12 +33,14 @@ var initHumPos int
 
 // SetBot marks the player as bot.
 func (p *Player) SetBot() {
+	p.Name = "Bot Player"
 	p.IsBot = true
 	rand.Seed(time.Now().UnixNano())
 }
 
 // SetHuman marks the player as human.
 func (p *Player) SetHuman() {
+	p.Name = "Human Player"
 	p.IsBot = false
 }
 
@@ -110,6 +113,14 @@ func (p *Player) ClearSector(m *Map) {
 		m[p.Location.Row][p.Location.Col].Status -= SectHum
 	}
 }
+
+// Fight simulates the fight and determines the winner among the players.
+func Fight(players ...*Player) {
+	winner := rand.Intn(len(players))
+	fmt.Println("The winner is", players[winner].Name)
+}
+
+/* Functions for the local use */
 
 func readUserInput(lim int) (input int) {
 	// Scan int from stdin.

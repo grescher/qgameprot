@@ -1,9 +1,5 @@
 package main
 
-import (
-	"fmt"
-)
-
 func main() {
 	// Set up players.
 	var player, bot Player
@@ -21,5 +17,5 @@ func main() {
 		bot.Move()
 		MapSectors.ShowMap()
 	}
-	fmt.Println("Bye.")
+	Fight(&player, &bot)
 }
