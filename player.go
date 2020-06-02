@@ -1,10 +1,14 @@
 package main
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"log"
 	"math/rand"
+	"os"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -50,7 +54,7 @@ func (p *Player) InitPos() {
 	if !p.IsBot {
 		// The human player initial sector.
 		fmt.Println("Choose sector to start:")
-		choice := readUserInput(MapMax)
+		choice := selectSector(MapMax)
 		initHumPos, p.Location = choice, toCoords(choice)
 	} else {
 		// The bot player initial sector.
@@ -73,7 +77,7 @@ func (p *Player) Move() {
 		fmt.Println("Input the sector number to move:")
 		// do...while loop analogue
 		for {
-			tmpLoc = toCoords(readUserInput(MapMax))
+			tmpLoc = toCoords(selectSector(MapMax))
 			err := checkNextMove(p.Location, tmpLoc)
 			if err != nil {
 				fmt.Println(err)
@@ -122,21 +126,34 @@ func Fight(players ...*Player) {
 
 /* Functions for the local use */
 
-func readUserInput(lim int) (input int) {
+func selectSector(lim int) (input int) {
 	// Scan int from stdin.
-	_, err := fmt.Scanf("%d", &input)
-	if err != nil {
-		log.Fatal(err)
-	}
+	input = getInt()
 	// Check whether ch is in range of map, if it's not reprompt the user.
 	for input < 1 || input > lim {
 		fmt.Printf("incorrect value, try with <1-%d>: ", lim)
-		_, err = fmt.Scanf("%d", &input)
-		if err != nil {
-			log.Fatal(err)
-		}
+		input = getInt()
 	}
 	return input
+}
+
+func getInt() (n int) {
+	// Create a new bufio.Reader to read keyboard input.
+	reader := bufio.NewReader(os.Stdin)
+	// Read all the user input untill newline character.
+	input, err := reader.ReadString('\n')
+	checkErr(err)
+	// Remove the whitespaces (the newline chararcter).
+	input = strings.TrimSpace(input)
+	n, err = strconv.Atoi(input)
+	checkErr(err)
+	return n
+}
+
+func checkErr(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 // Sets a new user location; clears the previous sector.
