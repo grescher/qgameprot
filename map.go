@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-
-	"github.com/fatih/color"
 )
 
 /* Types */
@@ -53,11 +51,11 @@ func printSector(s Sector) {
 	case SectEmp:
 		fmt.Printf("%3d", s.ID)
 	case SectHum:
-		fmt.Printf("  %s", color.GreenString("H"))
+		fmt.Print("  H")
 	case SectBot:
-		fmt.Printf("  %s", color.BlueString("B"))
+		fmt.Print("  B")
 	case SectHum + SectBot:
-		fmt.Printf(" %s", color.RedString("HB"))
+		fmt.Print(" HB")
 	default:
 		panic("unrecognized sector status")
 	}
