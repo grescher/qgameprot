@@ -53,11 +53,17 @@ func printSector(s Sector) {
 	case SectEmp:
 		fmt.Printf("%3d", s.ID)
 	case SectHum:
-		fmt.Printf("  %s", color.GreenString("H"))
+		c := color.New(color.FgGreen)
+		c.Print("  H")
+		c.DisableColor()
 	case SectBot:
-		fmt.Printf("  %s", color.BlueString("B"))
+		c := color.New(color.FgBlue)
+		c.Print("  B")
+		c.DisableColor()
 	case SectHum + SectBot:
-		fmt.Printf(" %s", color.RedString("HB"))
+		c := color.New(color.FgRed)
+		c.Print(" HB")
+		c.DisableColor()
 	default:
 		panic("unrecognized sector status")
 	}
