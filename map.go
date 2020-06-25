@@ -52,6 +52,18 @@ func (m *Map) ShowMap() {
 	}
 }
 
+// IsAvailable checks if there are still free sectors on the map.
+func (m *Map) IsAvailable() bool {
+	for i := range m {
+		for j := range m[i] {
+			if m[i][j].Status == SectEmp {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 // ToCoords converts map sector number into map coordinates.
 func ToCoords(n int) (c Coords) {
 	c.Row = (n - 1) / MapWidth

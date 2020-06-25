@@ -11,11 +11,11 @@ func main() {
 	player.InitPos()
 	bot.InitPos()
 	MapSectors.ShowMap()
-	// Players make their moves until meet each other
-	for player.Location != bot.Location {
+	// Players make their moves while there are free sectors on the map.
+	for MapSectors.IsAvailable() {
 		player.Move()
 		bot.Move()
 		MapSectors.ShowMap()
 	}
-	Fight(&player, &bot)
+	ShowResults(&player, &bot)
 }
