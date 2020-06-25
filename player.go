@@ -14,12 +14,6 @@ import (
 
 /* Types */
 
-// Coords type contains coorginates on the game map.
-type Coords struct {
-	Row int
-	Col int
-}
-
 // Player type.
 type Player struct {
 	Name     string
@@ -55,7 +49,7 @@ func (p *Player) InitPos() {
 		// The human player initial sector.
 		fmt.Println("Choose sector to start:")
 		choice := selectSector(MapMax)
-		initHumPos, p.Location = choice, toCoords(choice)
+		initHumPos, p.Location = choice, ToCoords(choice)
 	} else {
 		// The bot player initial sector.
 		choice = rand.Intn(MapMax) + 1
@@ -63,7 +57,7 @@ func (p *Player) InitPos() {
 			// Reassign location if it's equal to the human player location.
 			choice = rand.Intn(MapMax) + 1
 		}
-		p.Location = toCoords(choice)
+		p.Location = ToCoords(choice)
 		fmt.Printf("The opponent's clan has picked sector %d\n", choice)
 	}
 	p.CaptureSector(&MapSectors)
@@ -71,30 +65,30 @@ func (p *Player) InitPos() {
 
 // Move sets up the next player's position on the map.
 func (p *Player) Move() {
-	var tmpLoc Coords
+	var newLocation Coords
 	if !p.IsBot {
 		// The human player initial sector.
 		fmt.Println("Input the sector number to move:")
 		// do...while loop analogue
 		for {
-			tmpLoc = toCoords(selectSector(MapMax))
-			err := checkNextMove(p.Location, tmpLoc)
+			newLocation = ToCoords(selectSector(MapMax))
+			err := checkNextMove(p.Location, newLocation)
 			if err != nil {
 				fmt.Println(err)
 				fmt.Print("Select the sector next to your current location: ")
 				continue
 			}
-			reSetPlayerLocation(p, tmpLoc)
+			setNewLocation(p, newLocation)
 			break
 		}
 	} else {
 		for {
-			tmpLoc = toCoords(rand.Intn(MapMax) + 1)
-			err := checkNextMove(p.Location, tmpLoc)
+			newLocation = ToCoords(rand.Intn(MapMax) + 1)
+			err := checkNextMove(p.Location, newLocation)
 			if err != nil {
 				continue
 			}
-			reSetPlayerLocation(p, tmpLoc)
+			setNewLocation(p, newLocation)
 			break
 		}
 	}
@@ -103,18 +97,13 @@ func (p *Player) Move() {
 // CaptureSector sets the status of the map sector for the respective player.
 func (p *Player) CaptureSector(m *Map) {
 	if p.IsBot {
-		m[p.Location.Row][p.Location.Col].Status += SectBot
+		if m[p.Location.Row][p.Location.Col].Status == SectEmp {
+			m[p.Location.Row][p.Location.Col].Status += SectBot
+		}
 	} else {
-		m[p.Location.Row][p.Location.Col].Status += SectHum
-	}
-}
-
-// ClearSector marks the map sector as no-one's.
-func (p *Player) ClearSector(m *Map) {
-	if p.IsBot {
-		m[p.Location.Row][p.Location.Col].Status -= SectBot
-	} else {
-		m[p.Location.Row][p.Location.Col].Status -= SectHum
+		if m[p.Location.Row][p.Location.Col].Status == SectEmp {
+			m[p.Location.Row][p.Location.Col].Status += SectHum
+		}
 	}
 }
 
@@ -156,27 +145,18 @@ func checkErr(err error) {
 	}
 }
 
-// Sets a new user location; clears the previous sector.
-func reSetPlayerLocation(p *Player, newLoc Coords) {
-	p.ClearSector(&MapSectors)
+func setNewLocation(p *Player, newLoc Coords) {
 	p.Location = newLoc
 	p.CaptureSector(&MapSectors)
 }
 
-// Converts map sector number into map coordinates.
-func toCoords(n int) (c Coords) {
-	c.Row = (n - 1) / MapWidth
-	c.Col = (n - 1) % MapWidth
-	return c
-}
-
 // Checks if the player can make a move to a new sector.
-func checkNextMove(plrLoc, newLoc Coords) (err error) {
-	diff := newLoc.Col - plrLoc.Col
+func checkNextMove(currentLoc, newLoc Coords) (err error) {
+	diff := newLoc.Col - currentLoc.Col
 	if diff > 1 || diff < -1 {
 		return errors.New("unable to move through a sector")
 	}
-	diff = newLoc.Row - plrLoc.Row
+	diff = newLoc.Row - currentLoc.Row
 	if diff > 1 || diff < -1 {
 		return errors.New("unable to move through a sector")
 	}

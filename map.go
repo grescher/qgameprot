@@ -17,6 +17,12 @@ type Sector struct {
 // Map contains statuses of all its sectors.
 type Map [MapHeight][MapWidth]Sector
 
+// Coords type contains coorginates on the game map.
+type Coords struct {
+	Row int
+	Col int
+}
+
 /* Package scope variables */
 
 // MapSectors is the map for the game
@@ -26,11 +32,12 @@ var MapSectors Map
 
 // Init sets up initial state of the map.
 func (m *Map) Init() {
-	var num int
+	var num int = 0
 	for i := range m {
 		for j := range m[i] {
 			num++
 			m[i][j].ID = num
+			m[i][j].Status = SectEmp
 		}
 	}
 }
@@ -45,6 +52,13 @@ func (m *Map) ShowMap() {
 	}
 }
 
+// ToCoords converts map sector number into map coordinates.
+func ToCoords(n int) (c Coords) {
+	c.Row = (n - 1) / MapWidth
+	c.Col = (n - 1) % MapWidth
+	return c
+}
+
 /* Functions for the local use */
 
 // printSector reads the sector's status and prints string with its condition.
@@ -54,11 +68,11 @@ func printSector(s Sector) {
 		fmt.Printf("%3d", s.ID)
 	case SectHum:
 		c := color.New(color.FgGreen)
-		c.Print("  H")
+		c.Printf("%3d", s.ID)
 		c.DisableColor()
 	case SectBot:
 		c := color.New(color.FgBlue)
-		c.Print("  B")
+		c.Printf("%3d", s.ID)
 		c.DisableColor()
 	case SectHum + SectBot:
 		c := color.New(color.FgRed)
